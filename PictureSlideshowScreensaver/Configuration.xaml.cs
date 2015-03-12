@@ -14,7 +14,7 @@ using System.IO;
 using Microsoft.Win32;
 
 namespace PictureSlideshowScreensaver
-{
+{ 
     /// <summary>
     /// Interaction logic for Configuration.xaml
     /// </summary>
