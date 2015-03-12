@@ -1,7 +1,0 @@
-syntax: glob
-PictureSlideshowScreensaver/bin/Debug/*
-PictureSlideshowScreensaver/bin/Release/*
-PictureSlideshowScreensaver/obj/x86/Debug/*
-PictureSlideshowScreensaver/obj/x86/Release/*
-*.user
-*.suo
