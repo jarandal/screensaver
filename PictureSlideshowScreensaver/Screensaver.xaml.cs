@@ -112,7 +112,8 @@ namespace PictureSlideshowScreensaver
 
                     MainMap.Width = _bounds.Width / 7;
                     MainMap.Height = MainMap.Width;
-
+                    GMaps.Instance.UseMemoryCache = true;
+                    
 
                     Canvas.SetLeft(MainMap, _bounds.Width - MainMap.Width * 6 / 5);
                     Canvas.SetTop(MainMap, _bounds.Height - MainMap.Width * 6 / 5); 
@@ -161,6 +162,8 @@ namespace PictureSlideshowScreensaver
 
                 try
                 {
+                    Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
+
                     if (_imageEnum.Current.ToUpper().EndsWith("JPG")) {
                         string filename = _imageEnum.Current;
                         ExifFile file = ExifFile.Read(filename);
@@ -184,7 +187,6 @@ namespace PictureSlideshowScreensaver
                         }
                     }
                     
-                    Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
                     MoveTo(aux, 0, 0);
                     return;
                 }

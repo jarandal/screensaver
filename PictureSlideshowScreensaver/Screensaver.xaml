@@ -10,7 +10,9 @@
             <Label HorizontalAlignment="Stretch" x:Name="lblScreen" VerticalAlignment="Stretch" Opacity="1" MouseMove="lblScreen_MouseMove" MouseDown="lblScreen_MouseDown" KeyDown="Window_KeyDown" FontSize="16" Foreground="#FFD70000" />
             <Button Content="Next Image" Height="23" HorizontalAlignment="Left" Margin="12,41,0,0" x:Name="bNext" VerticalAlignment="Top" Width="96" Click="bNext_Click" Visibility="Hidden" />
             <Button Content="Exit" Height="23" HorizontalAlignment="Left" Margin="12,12,0,0" x:Name="bExit" VerticalAlignment="Top" Width="96" Click="bExit_Click" Visibility="Hidden" />
-            <WindowsPresentation:GMapControl x:Name="MainMap" Height="200" Width="200"  MaxZoom="100" MinZoom="0" />
+            <WindowsPresentation:GMapControl x:Name="MainMap" Height="200" Width="200"  MaxZoom="100" MinZoom="0"  >
+            </WindowsPresentation:GMapControl>
+            
         </Canvas>
         
     </Grid>
