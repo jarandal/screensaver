@@ -1,14 +1,17 @@
-﻿<Window x:Class="PictureSlideshowScreensaver.Screensaver"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:WindowsPresentation="clr-namespace:GMap.NET.WindowsPresentation;assembly=GMap.NET.WindowsPresentation" x:Class="PictureSlideshowScreensaver.Screensaver"
         Title="Slideshow Screensaver by RepTail" Height="447" Width="697" Background="Black" Loaded="Window_Loaded" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="None" WindowState="Normal" WindowStartupLocation="Manual" Topmost="True" Cursor="None" KeyDown="Window_KeyDown">
     <Grid>
         <Canvas x:Name="canvas">
-            <Image Name="img1" Opacity="1" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" />
-            <Image Name="img2" Opacity="0" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" />
-            <Label HorizontalAlignment="Stretch" Name="lblScreen" VerticalAlignment="Stretch" Opacity="1" MouseMove="lblScreen_MouseMove" MouseDown="lblScreen_MouseDown" KeyDown="Window_KeyDown" FontSize="16" Foreground="#FFD70000" />
-            <Button Content="Next Image" Height="23" HorizontalAlignment="Left" Margin="12,41,0,0" Name="bNext" VerticalAlignment="Top" Width="96" Click="bNext_Click" Visibility="Hidden" />
-            <Button Content="Exit" Height="23" HorizontalAlignment="Left" Margin="12,12,0,0" Name="bExit" VerticalAlignment="Top" Width="96" Click="bExit_Click" Visibility="Hidden" />
+            <Image x:Name="img1" Opacity="1" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" />
+            <Image x:Name="img2" Opacity="0" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" />
+            <Label HorizontalAlignment="Stretch" x:Name="lblScreen" VerticalAlignment="Stretch" Opacity="1" MouseMove="lblScreen_MouseMove" MouseDown="lblScreen_MouseDown" KeyDown="Window_KeyDown" FontSize="16" Foreground="#FFD70000" />
+            <Button Content="Next Image" Height="23" HorizontalAlignment="Left" Margin="12,41,0,0" x:Name="bNext" VerticalAlignment="Top" Width="96" Click="bNext_Click" Visibility="Hidden" />
+            <Button Content="Exit" Height="23" HorizontalAlignment="Left" Margin="12,12,0,0" x:Name="bExit" VerticalAlignment="Top" Width="96" Click="bExit_Click" Visibility="Hidden" />
+            <WindowsPresentation:GMapControl x:Name="MainMap" Height="200" Width="200"  MaxZoom="100" MinZoom="0" />
         </Canvas>
+        
     </Grid>
 </Window>

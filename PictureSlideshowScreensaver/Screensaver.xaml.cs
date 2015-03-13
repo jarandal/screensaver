@@ -16,6 +16,11 @@ using System.Windows.Threading;
 using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
+using ExifLibrary;
+using System.Net;
+using GMap.NET;
+using GMap.NET.MapProviders;
+using GMap.NET.WindowsPresentation;
 
 namespace PictureSlideshowScreensaver
 {
@@ -47,9 +52,9 @@ namespace PictureSlideshowScreensaver
             if (key != null)
             {
                 _path = (string)key.GetValue("ImageFolder");
-#if DEBUG 
-                _path = @"D:\Prog\Personal\pictureslideshow\PictureSlideshowScreensaver\img";
-#endif
+//#if DEBUG 
+//                _path = @"D:\Prog\Personal\pictureslideshow\PictureSlideshowScreensaver\img";
+//#endif
                 _updateInterval = double.Parse((string)key.GetValue("Interval"));
             }
 
@@ -104,6 +109,18 @@ namespace PictureSlideshowScreensaver
             {
                 if (Directory.Exists(_path))
                 {
+
+                    MainMap.Width = _bounds.Width / 7;
+                    MainMap.Height = MainMap.Width;
+
+
+                    Canvas.SetLeft(MainMap, _bounds.Width - MainMap.Width * 6 / 5);
+                    Canvas.SetTop(MainMap, _bounds.Height - MainMap.Width * 6 / 5); 
+                    
+                    MainMap.MapProvider = GMapProviders.GoogleMap;
+                    GMapProvider.WebProxy = new WebProxy("127.0.0.1", 3128);
+                    MainMap.Zoom = 9;
+                                                          
                     foreach (string s in Directory.GetFiles(_path))
                     {
                         if (s.ToLower().EndsWith(".jpg") | s.ToLower().EndsWith(".png"))
@@ -140,8 +157,33 @@ namespace PictureSlideshowScreensaver
         {
             if (_imageEnum.MoveNext())
             {
+                MainMap.Visibility = System.Windows.Visibility.Hidden;
+
                 try
                 {
+                    if (_imageEnum.Current.ToUpper().EndsWith("JPG")) {
+                        string filename = _imageEnum.Current;
+                        ExifFile file = ExifFile.Read(filename);
+                        if (file.Properties.Keys.Contains(ExifTag.GPSLatitude) && file.Properties.Keys.Contains(ExifTag.GPSLongitude))
+                        { 
+                            GPSLatitudeLongitude lat = file.Properties[ExifTag.GPSLatitude] as GPSLatitudeLongitude;
+                            GPSLatitudeLongitude lng = file.Properties[ExifTag.GPSLongitude] as GPSLatitudeLongitude;
+
+                            GPSLatitudeRef latR = (GPSLatitudeRef)file.Properties[ExifTag.GPSLatitudeRef].Value;
+                            GPSLongitudeRef lngR = (GPSLongitudeRef)file.Properties[ExifTag.GPSLongitudeRef].Value;
+
+                            int NS = 1; if (latR == GPSLatitudeRef.South) { NS = -1 ;}
+                            int WE = 1; if (lngR == GPSLongitudeRef.West) { WE = -1; }
+                                                        
+                            if (lat != null && lng != null)
+                            {
+                                MainMap.Visibility = System.Windows.Visibility.Visible;
+                                MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat() ,  WE * (double)lng.ToFloat());
+                                MainMap.ReloadMap() ;
+                            }
+                        }
+                    }
+                    
                     Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
                     MoveTo(aux, 0, 0);
                     return;
