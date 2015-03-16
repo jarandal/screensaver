@@ -39,13 +39,8 @@ namespace PictureSlideshowScreensaver
         private const int MOUSEEVENTF_LEFTUP = 0x04;
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
-
-        ////This function queries or sets system-wide parameters, and updates the user profile during the process.
-        //[DllImport("user32", EntryPoint = "SystemParametersInfo", CharSet = CharSet.Auto, SetLastError = true)]
-        //private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-
-        //private const Int32 SPI_SETSCREENSAVETIMEOUT = 15;
-
+        private const int MOUSEEVENTF_MOVE = 0x01;
+    
         private string _path = null;
         private double _updateInterval = 13.5; // seconds
         private int _fadeSpeed = 3000;      // milliseconds
@@ -64,6 +59,7 @@ namespace PictureSlideshowScreensaver
 
         public Screensaver(System.Drawing.Rectangle bounds)
         {
+            
 
             RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\PictureSlideshowScreensaver");
             if (key != null)
@@ -110,8 +106,9 @@ namespace PictureSlideshowScreensaver
 
         void _fade_Tick(object sender, EventArgs e)
         {
-            //SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, 5, "", 0);
-            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 10, 10, 0, 0);
+            if (System.Windows.SystemParameters.PowerLineStatus == PowerLineStatus.Online) { 
+                mouse_event(MOUSEEVENTF_MOVE, 1, 1, 0, 0);
+            }
             NextImage();
         }
 
@@ -240,19 +237,19 @@ namespace PictureSlideshowScreensaver
 
         private Image FadeToImage(BitmapImage img)
         {
-            Image result = null; 
+            Image result = null;
             DoubleAnimation da1;
             DoubleAnimation da2;
             if (img1.Opacity == 0)
             {
                 img1.Source = img;
-                
+
                 da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
                 da2 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
 
                 img1.BeginAnimation(Image.OpacityProperty, da1);
                 img2.BeginAnimation(Image.OpacityProperty, da2);
-               
+
                 result = img1;
             }
             else if (img2.Opacity == 0)
@@ -267,6 +264,29 @@ namespace PictureSlideshowScreensaver
                 result = img2;
             }
             return result;
+        }
+
+        private static Size ScaleSize(Size from, int? maxWidth, int? maxHeight)
+        {
+            if (!maxWidth.HasValue && !maxHeight.HasValue) throw new ArgumentException("At least one scale factor (toWidth or toHeight) must not be null.");
+            if (from.Height == 0 || from.Width == 0) throw new ArgumentException("Cannot scale size from zero.");
+
+            double? widthScale = null;
+            double? heightScale = null;
+
+            if (maxWidth.HasValue)
+            {
+                widthScale = maxWidth.Value / (double)from.Width;
+            }
+            if (maxHeight.HasValue)
+            {
+                heightScale = maxHeight.Value / (double)from.Height;
+            }
+
+            double scale = Math.Max((double)(widthScale ?? heightScale),
+                                     (double)(heightScale ?? widthScale));
+
+            return new Size((int)Math.Floor(from.Width * scale), (int)Math.Ceiling(from.Height * scale));
         }
 
         private void FadeIn(FrameworkElement g)
@@ -298,11 +318,11 @@ namespace PictureSlideshowScreensaver
         private void MoveTo(Image target, double newX, double newY)
         {
 
-            int bX =  rndBool()? 1 : -1;
-            int bY =  rndBool() ? 1 : -1;
+            int bX = rndBool() ? 1 : -1;
+            int bY = rndBool() ? 1 : -1;
 
-            Canvas.SetLeft(target,0);
-            Canvas.SetTop(target,0);
+            Canvas.SetLeft(target, 0);
+            Canvas.SetTop(target, 0);
 
             var top = Canvas.GetTop(target); 
             var left = Canvas.GetLeft(target);
@@ -326,35 +346,7 @@ namespace PictureSlideshowScreensaver
 
             scale.BeginAnimation(ScaleTransform.ScaleXProperty,danim1);
             scale.BeginAnimation(ScaleTransform.ScaleYProperty,danim2);
-
-
-
-            //// resize
-            //Storyboard storyboard = new Storyboard();
-
-            //ScaleTransform scale = new ScaleTransform(1.0, 1.0);
-            //target.RenderTransformOrigin = new Point(0.5, 0.5);
-            //target.RenderTransform = scale;
-
-            //DoubleAnimation growAnimation = new DoubleAnimation();
-            //growAnimation.Duration = TimeSpan.FromSeconds(_updateInterval);
-            //growAnimation.From = 1;
-            //growAnimation.To = 1.8;
-            //storyboard.Children.Add(growAnimation);
-
-            //DoubleAnimation growAnimation2 = new DoubleAnimation();
-            //growAnimation.Duration = TimeSpan.FromSeconds(_updateInterval);
-            //growAnimation.From = 1;
-            //growAnimation.To = 1.8;
-            //storyboard.Children.Add(growAnimation2);
-
-            //Storyboard.SetTargetProperty(growAnimation, new PropertyPath("RenderTransform.ScaleX"));
-            //Storyboard.SetTarget(growAnimation, target);
-
-            //Storyboard.SetTargetProperty(growAnimation2, new PropertyPath("RenderTransform.ScaleY"));
-            //Storyboard.SetTarget(growAnimation2, target);
-
-            //storyboard.Begin();
+            
         }
 
         public static List<T> RandomizeGenericList<T>(IList<T> originalList)
