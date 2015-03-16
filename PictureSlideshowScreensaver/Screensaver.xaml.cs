@@ -110,19 +110,23 @@ namespace PictureSlideshowScreensaver
                 if (Directory.Exists(_path))
                 {
 
-                    MainMap.Width = _bounds.Width / 7;
-                    MainMap.Height = MainMap.Width;
-                    GMaps.Instance.UseMemoryCache = true;
-                    
+                    MainMapGrid.Width = _bounds.Width / 7;
+                    MainMapGrid.Height = _bounds.Width / 7;
 
-                    Canvas.SetLeft(MainMap, _bounds.Width - MainMap.Width * 6 / 5);
-                    Canvas.SetTop(MainMap, _bounds.Height - MainMap.Width * 6 / 5); 
+                    MainMap.Width = _bounds.Width / 7;
+                    MainMap.Height = _bounds.Width / 7;
+
+                    GMaps.Instance.UseMemoryCache = true;
+
+                    Canvas.SetLeft(MainMapGrid, _bounds.Width - MainMapGrid.Width * 6 / 5);
+                    Canvas.SetTop(MainMapGrid, _bounds.Height - MainMapGrid.Width * 6 / 5); 
                     
                     MainMap.MapProvider = GMapProviders.GoogleMap;
-                    GMapProvider.WebProxy = new WebProxy("127.0.0.1", 3128);
+                    //GMapProvider.WebProxy = new WebProxy("127.0.0.1", 3128);
                     MainMap.Zoom = 9;
                                                           
-                    foreach (string s in Directory.GetFiles(_path))
+                    //foreach (string s in Directory.GetFiles(_path))
+                    foreach (string s in GetFiles(_path))
                     {
                         if (s.ToLower().EndsWith(".jpg") | s.ToLower().EndsWith(".png"))
                         {
@@ -158,12 +162,12 @@ namespace PictureSlideshowScreensaver
         {
             if (_imageEnum.MoveNext())
             {
-                MainMap.Visibility = System.Windows.Visibility.Hidden;
-
                 try
                 {
                     Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
 
+                    bool gps = false;
+                    
                     if (_imageEnum.Current.ToUpper().EndsWith("JPG")) {
                         string filename = _imageEnum.Current;
                         ExifFile file = ExifFile.Read(filename);
@@ -180,11 +184,20 @@ namespace PictureSlideshowScreensaver
                                                         
                             if (lat != null && lng != null)
                             {
-                                MainMap.Visibility = System.Windows.Visibility.Visible;
+                                FadeIn(MainMapGrid);
                                 MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat() ,  WE * (double)lng.ToFloat());
+                                MainMap.Markers.Clear();
                                 MainMap.ReloadMap() ;
+                                
+                                gps = true;
+
                             }
                         }
+                    }
+
+                    if (!gps)
+                    {
+                        FadeOut(MainMapGrid);
                     }
                     
                     MoveTo(aux, 0, 0);
@@ -192,7 +205,6 @@ namespace PictureSlideshowScreensaver
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show("ERROR: " + ex.Message);
                     _imageEnum.MoveNext();
                     return;
                 }
@@ -231,6 +243,26 @@ namespace PictureSlideshowScreensaver
                 result = img2;
             }
             return result;
+        }
+
+        private void FadeIn(FrameworkElement g)
+        {
+            
+            DoubleAnimation da1;
+            
+            da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
+            g.BeginAnimation(FrameworkElement.OpacityProperty, da1);
+            
+        }
+
+        private void FadeOut(FrameworkElement g)
+        {
+
+            DoubleAnimation da1;
+
+            da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
+            g.BeginAnimation(FrameworkElement.OpacityProperty, da1);
+
         }
 
         private bool rndBool()
@@ -360,5 +392,43 @@ namespace PictureSlideshowScreensaver
             Application.Current.Shutdown();
 #endif
         }
+
+        static IEnumerable<string> GetFiles(string path)
+        {
+            Queue<string> queue = new Queue<string>();
+            queue.Enqueue(path);
+            while (queue.Count > 0)
+            {
+                path = queue.Dequeue();
+                try
+                {
+                    foreach (string subDir in Directory.GetDirectories(path))
+                    {
+                        queue.Enqueue(subDir);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex);
+                }
+                string[] files = null;
+                try
+                {
+                    files = Directory.GetFiles(path);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex);
+                }
+                if (files != null)
+                {
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        yield return files[i];
+                    }
+                }
+            }
+        }
+
     }
 }
