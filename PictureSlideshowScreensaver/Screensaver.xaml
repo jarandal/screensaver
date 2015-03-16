@@ -14,11 +14,14 @@
                 <Grid.OpacityMask>
                     <ImageBrush ImageSource="img\circle.png"/>
                 </Grid.OpacityMask>
-                <WindowsPresentation:GMapControl x:Name="MainMap" MaxZoom="100" MinZoom="0"    >
+                <WindowsPresentation:GMapControl x:Name="MainMap" MaxZoom="100" MinZoom="0"  >
                 </WindowsPresentation:GMapControl>
             </Grid>
-
         </Canvas>
-        
+        <Label Foreground="#FFF5F543" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="30" HorizontalAlignment="Center"   VerticalAlignment="Bottom" Width="Auto" Height="Auto " x:Name="FolderName" >
+            <Label.Effect>
+                <DropShadowEffect Color="#FFC8C8C8"/>
+            </Label.Effect>-</Label>
+
     </Grid>
 </Window>

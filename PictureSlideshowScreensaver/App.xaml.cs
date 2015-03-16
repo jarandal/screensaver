@@ -61,10 +61,11 @@ namespace PictureSlideshowScreensaver
             else
             {
 
-                // Set new state to prevent system sleep
-                fPreviousExecutionState = NativeMethods.SetThreadExecutionState(
-                    NativeMethods.ES_CONTINUOUS | NativeMethods.ES_SYSTEM_REQUIRED);
-                // No argument, launch screensaver.
+                //// Set new state to prevent system sleep
+                //fPreviousExecutionState = NativeMethods.SetThreadExecutionState(
+                //    NativeMethods.ES_CONTINUOUS | NativeMethods.ES_SYSTEM_REQUIRED);
+                //// No argument, launch screensaver.
+
                 LaunchScreensaver();
                 
             }
@@ -101,22 +102,22 @@ namespace PictureSlideshowScreensaver
         }
 
 
-        internal static class NativeMethods
-        {
-            // Import SetThreadExecutionState Win32 API and necessary flags
-            [DllImport("kernel32.dll")]
-            public static extern uint SetThreadExecutionState(uint esFlags);
-            public const uint ES_CONTINUOUS = 0x80000000;
-            public const uint ES_SYSTEM_REQUIRED = 0x00000001;
-        }
+        //internal static class NativeMethods
+        //{
+        //    // Import SetThreadExecutionState Win32 API and necessary flags
+        //    [DllImport("kernel32.dll")]
+        //    public static extern uint SetThreadExecutionState(uint esFlags);
+        //    public const uint ES_CONTINUOUS = 0x80000000;
+        //    public const uint ES_SYSTEM_REQUIRED = 0x00000001;
+        //}
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
-            // Restore previous state
-            if (NativeMethods.SetThreadExecutionState(fPreviousExecutionState) == 0)
-            {
-                // No way to recover; already exiting
-            }
+            //// Restore previous state
+            //if (NativeMethods.SetThreadExecutionState(fPreviousExecutionState) == 0)
+            //{
+            //    // No way to recover; already exiting
+            //}
         }
     }
 }

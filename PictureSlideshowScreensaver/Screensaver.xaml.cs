@@ -27,8 +27,25 @@ namespace PictureSlideshowScreensaver
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+
     public partial class Screensaver : Window
     {
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
+
+        private const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        private const int MOUSEEVENTF_LEFTUP = 0x04;
+        private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+        private const int MOUSEEVENTF_RIGHTUP = 0x10;
+
+        ////This function queries or sets system-wide parameters, and updates the user profile during the process.
+        //[DllImport("user32", EntryPoint = "SystemParametersInfo", CharSet = CharSet.Auto, SetLastError = true)]
+        //private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+
+        //private const Int32 SPI_SETSCREENSAVETIMEOUT = 15;
+
         private string _path = null;
         private double _updateInterval = 13.5; // seconds
         private int _fadeSpeed = 3000;      // milliseconds
@@ -93,6 +110,8 @@ namespace PictureSlideshowScreensaver
 
         void _fade_Tick(object sender, EventArgs e)
         {
+            //SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, 5, "", 0);
+            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 10, 10, 0, 0);
             NextImage();
         }
 
@@ -122,7 +141,8 @@ namespace PictureSlideshowScreensaver
                     Canvas.SetTop(MainMapGrid, _bounds.Height - MainMapGrid.Width * 6 / 5); 
                     
                     MainMap.MapProvider = GMapProviders.GoogleMap;
-                    //GMapProvider.WebProxy = new WebProxy("127.0.0.1", 3128);
+                    //GMapProvider.WebProxy =  new WebProxy("127.0.0.1", 3128);
+                    
                     MainMap.Zoom = 9;
                                                           
                     //foreach (string s in Directory.GetFiles(_path))
@@ -164,12 +184,16 @@ namespace PictureSlideshowScreensaver
             {
                 try
                 {
+
                     Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
 
                     bool gps = false;
-                    
+                    string filename = _imageEnum.Current;
+
+                    FileInfo fi = new System.IO.FileInfo(filename);
+                    FolderName.Content = fi.Directory.Name;
+
                     if (_imageEnum.Current.ToUpper().EndsWith("JPG")) {
-                        string filename = _imageEnum.Current;
                         ExifFile file = ExifFile.Read(filename);
                         if (file.Properties.Keys.Contains(ExifTag.GPSLatitude) && file.Properties.Keys.Contains(ExifTag.GPSLongitude))
                         { 
