@@ -22,6 +22,8 @@ using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsPresentation;
 
+
+
 namespace PictureSlideshowScreensaver
 {
     /// <summary>
@@ -81,14 +83,27 @@ namespace PictureSlideshowScreensaver
             img1.Width = bounds.Width + panX * 2;
             img2.Width = bounds.Width + panX * 2;
             img1.Height = bounds.Height + panY * 2;
-            img2.Height = bounds.Height + panY * 2; 
+            img2.Height = bounds.Height + panY * 2;
+
+            
+
+            bkg1.Width = bounds.Width * 1.4;
+            bkg2.Width = bounds.Width * 1.4;
+            bkg1.Height = bounds.Height * 3;
+            bkg2.Height = bounds.Height * 3;
+            
+            Canvas.SetTop(bkg1, - bounds.Height * 1);
+            Canvas.SetTop(bkg2, - bounds.Height * 1);
+            Canvas.SetLeft(bkg1, -bounds.Width * 0.2);
+            Canvas.SetLeft(bkg2, -bounds.Width * 0.2);
+
 
             Thickness margin = new Thickness();
             margin.Left = -panX;
             margin.Right = panX;
             margin.Top = -panY;
             margin.Bottom = panY;
-
+            
             img1.Margin = margin;
             img2.Margin = margin;
 
@@ -224,7 +239,7 @@ namespace PictureSlideshowScreensaver
                     MoveTo(aux, 0, 0);
                     return;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     _imageEnum.MoveNext();
                     return;
@@ -240,27 +255,56 @@ namespace PictureSlideshowScreensaver
             Image result = null;
             DoubleAnimation da1;
             DoubleAnimation da2;
+
+            WriteableBitmap wb = new WriteableBitmap(img);
+            int w =  Convert.ToInt32(img.Width / 20);
+            int h = Convert.ToInt32(img.Height / 20);
+            wb = wb.Resize(w, h, WriteableBitmapExtensions.Interpolation.Bilinear);
+            wb = wb.Convolute(WriteableBitmapExtensions.KernelGaussianBlur5x5);
+                        
             if (img1.Opacity == 0)
             {
-                img1.Source = img;
 
+                Canvas.SetTop(img1, 0);
+                Canvas.SetLeft(img1, 0);
+
+                img1.Source = img;
+                bkg1.Source = wb;
+                
                 da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
                 da2 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
 
                 img1.BeginAnimation(Image.OpacityProperty, da1);
                 img2.BeginAnimation(Image.OpacityProperty, da2);
 
+                //bkg1.Opacity = 1;
+                //bkg2.Opacity = 0;
+
+                bkg1.BeginAnimation(Image.OpacityProperty, da1);
+                bkg2.BeginAnimation(Image.OpacityProperty, da2);
+
                 result = img1;
             }
             else if (img2.Opacity == 0)
             {
+
+                Canvas.SetTop(img2, 0);
+                Canvas.SetLeft(img2, 0);
+
                 img2.Source = img;
+                bkg2.Source = wb;
 
                 da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
                 da2 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
 
                 img1.BeginAnimation(Image.OpacityProperty, da1);
                 img2.BeginAnimation(Image.OpacityProperty, da2);
+
+                //bkg1.Opacity = 0;
+                //bkg2.Opacity = 1;
+                bkg1.BeginAnimation(Image.OpacityProperty, da1);
+                bkg2.BeginAnimation(Image.OpacityProperty, da2);
+
                 result = img2;
             }
             return result;
@@ -446,5 +490,7 @@ namespace PictureSlideshowScreensaver
             }
         }
 
+
+     
     }
 }
