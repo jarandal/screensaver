@@ -257,8 +257,8 @@ namespace PictureSlideshowScreensaver
             DoubleAnimation da2;
 
             WriteableBitmap wb = new WriteableBitmap(img);
-            int w =  Convert.ToInt32(img.Width / 20);
-            int h = Convert.ToInt32(img.Height / 20);
+            int w =  Convert.ToInt32(img.Width / 7);
+            int h = Convert.ToInt32(img.Height / 7);
             wb = wb.Resize(w, h, WriteableBitmapExtensions.Interpolation.Bilinear);
             wb = wb.Convolute(WriteableBitmapExtensions.KernelGaussianBlur5x5);
                         
@@ -333,24 +333,36 @@ namespace PictureSlideshowScreensaver
             return new Size((int)Math.Floor(from.Width * scale), (int)Math.Ceiling(from.Height * scale));
         }
 
-        private void FadeIn(FrameworkElement g)
+        private void FadeIn(FrameworkElement g, int miliseconds)
         {
             
             DoubleAnimation da1;
-            
-            da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
+
+            da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(miliseconds));
             g.BeginAnimation(FrameworkElement.OpacityProperty, da1);
             
+        }
+
+        private void FadeIn(FrameworkElement g)
+        {
+            FadeIn(g, _fadeSpeed);
+            
+        }
+
+        private void FadeOut(FrameworkElement g, int miliseconds)
+        {
+
+            DoubleAnimation da1;
+
+            da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(miliseconds));
+            g.BeginAnimation(FrameworkElement.OpacityProperty, da1);
+
         }
 
         private void FadeOut(FrameworkElement g)
         {
 
-            DoubleAnimation da1;
-
-            da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
-            g.BeginAnimation(FrameworkElement.OpacityProperty, da1);
-
+            FadeOut(g, _fadeSpeed);
         }
 
         private bool rndBool()
@@ -439,18 +451,37 @@ namespace PictureSlideshowScreensaver
             _mouseLocation = newPos;
         }
 
+        private void switchButtons()
+        {
+            if (cnvButtons.Opacity == 1)
+            {
+                hideButtons();
+            }
+            else
+            {
+                showButtons();
+            }
+        }
+
         private void lblScreen_MouseDown(object sender, MouseButtonEventArgs e)
         {
-#if !DEBUG 
-            Application.Current.Shutdown();
-#endif
+            switchButtons();
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-#if !DEBUG 
-            Application.Current.Shutdown();
-#endif
+            switchButtons();
+        }
+
+        private void showButtons()
+        {
+            FadeIn(cnvButtons,500);
+
+        }
+
+        private void hideButtons()
+        {
+            FadeOut(cnvButtons,500);
         }
 
         static IEnumerable<string> GetFiles(string path)

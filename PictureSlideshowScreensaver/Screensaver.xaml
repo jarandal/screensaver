@@ -18,11 +18,51 @@
                 <WindowsPresentation:GMapControl x:Name="MainMap" MaxZoom="100" MinZoom="0"  >
                 </WindowsPresentation:GMapControl>
             </Grid>
+
+            
+            
         </Canvas>
         <Label Foreground="#FFF5F543" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="30" HorizontalAlignment="Center"   VerticalAlignment="Bottom" Width="Auto" Height="Auto " x:Name="FolderName" >
             <Label.Effect>
                 <DropShadowEffect Color="#FFC8C8C8"/>
         </Label.Effect>-</Label>
         <Label HorizontalAlignment="Stretch" x:Name="lblScreen" VerticalAlignment="Stretch" Opacity="1" MouseMove="lblScreen_MouseMove" MouseDown="lblScreen_MouseDown" KeyDown="Window_KeyDown" FontSize="16" Foreground="#FFD70000" />
+        <Canvas x:Name="cnvButtons" Opacity="0">
+            <Grid Height="100" Width="100" Canvas.Left="0" x:Name="rotate_left"  Background="White"   >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\c_icon\rotate_left.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+            <Grid Height="100" Width="100" Canvas.Left="100" x:Name="media_step_back"  Background="White" >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\b_icon\media_step_back.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+            <Grid Height="100" Width="100" Canvas.Left="200" x:Name="media_play"  Background="White" >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\b_icon\media_play.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+            <Grid Height="100" Width="100" Canvas.Left="300" x:Name="media_step_forward"  Background="White" >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\b_icon\media_step_forward.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+            <Grid Height="100" Width="100" Canvas.Left="400" x:Name="rotate_right"  Background="White" >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\c_icon\rotate_right.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+            <Grid Height="100" Width="100" Canvas.Top="300" x:Name="standby"  Background="White" >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\b_icon\standby.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+            <Grid Height="100" Width="100" Canvas.Left="100"  Canvas.Top="293" x:Name="earth_location"  Background="White" >
+                <Grid.OpacityMask>
+                    <ImageBrush ImageSource="img\b_icon\earth_location.png"/>
+                </Grid.OpacityMask>
+            </Grid>
+        </Canvas>
     </Grid>
 </Window>
