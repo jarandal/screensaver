@@ -23,7 +23,9 @@ namespace PictureSlideshowScreensaver
 
             _enumerator = enumerator;
             _buffer = new List<T>();
-            _index = -1;
+
+            Reset();
+            
         }
 
         public bool MovePrevious()
@@ -41,13 +43,6 @@ namespace PictureSlideshowScreensaver
         {
             if (_index < _buffer.Count - 1)
             {
-                ++_index;
-                return true;
-            }
-
-            if (_enumerator.MoveNext())
-            {
-                _buffer.Add(_enumerator.Current);
                 ++_index;
                 return true;
             }
@@ -71,6 +66,16 @@ namespace PictureSlideshowScreensaver
             _enumerator.Reset();
             _buffer.Clear();
             _index = -1;
+
+            while (_enumerator.MoveNext())
+            {
+                if (_enumerator.Current != null)
+                {
+                    _buffer.Add(_enumerator.Current);
+                }
+
+            } 
+
         }
 
         public void Dispose()
