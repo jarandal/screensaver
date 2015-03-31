@@ -48,20 +48,21 @@ namespace PictureSlideshowScreensaver
         private int _fadeSpeed = 3000;      // milliseconds
 
         private List<string> _images;
-        private IEnumerator<string> _imageEnum;
+        private ITwoWayEnumerator<string> _imageEnum;
         private DispatcherTimer _switchImage;
         private Point _mouseLocation = new Point(0, 0);
 
         private double panX;
         private double panY;
 
+        private List<Grid> btnArray = new List<Grid>();
+                
         Random rand = new Random();
 
         private System.Drawing.Rectangle _bounds;
 
         public Screensaver(System.Drawing.Rectangle bounds)
         {
-            
 
             RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\PictureSlideshowScreensaver");
             if (key != null)
@@ -75,6 +76,8 @@ namespace PictureSlideshowScreensaver
 
             InitializeComponent();
 
+            Grid[] btnArray = new Grid[] { rotate_left, media_step_back, media_play, media_step_forward, rotate_right, standby, earth_location };
+
             _bounds = bounds;
 
             panX = bounds.Width * 0.03;
@@ -84,9 +87,7 @@ namespace PictureSlideshowScreensaver
             img2.Width = bounds.Width + panX * 2;
             img1.Height = bounds.Height + panY * 2;
             img2.Height = bounds.Height + panY * 2;
-
             
-
             bkg1.Width = bounds.Width * 1.4;
             bkg2.Width = bounds.Width * 1.4;
             bkg1.Height = bounds.Height * 3;
@@ -116,6 +117,24 @@ namespace PictureSlideshowScreensaver
             _switchImage = new DispatcherTimer();
             _switchImage.Interval = TimeSpan.FromSeconds(_updateInterval);
             _switchImage.Tick += new EventHandler(_fade_Tick);
+
+            int bW = _bounds.Width / 9;
+            foreach (Grid x in btnArray)
+            {
+                x.Width = bW;
+                x.Height = bW;
+            }
+
+            Canvas.SetLeft(rotate_left, 0);
+            Canvas.SetLeft(media_step_back, bW * 3);
+            Canvas.SetLeft(media_play, bW * 4);
+            Canvas.SetLeft(media_step_forward, bW * 5);
+            Canvas.SetLeft(rotate_right, bW * 8);
+
+            Canvas.SetLeft(standby, 0);
+            Canvas.SetLeft(earth_location, bW * 8);
+            Canvas.SetTop(standby, bounds.Height - bW );
+            Canvas.SetTop(earth_location, bounds.Height - bW );
 
         }
 
@@ -169,7 +188,7 @@ namespace PictureSlideshowScreensaver
 
                     if (_images.Count > 0)
                     {
-                        _imageEnum = _images.GetEnumerator();
+                        _imageEnum = new TwoWayEnumerator<string>(_images.GetEnumerator());
                         NextImage();
                         _switchImage.Start();
                     }
@@ -190,65 +209,89 @@ namespace PictureSlideshowScreensaver
             NextImage();
         }
 
+
+        private void bPrev_Click(object sender, RoutedEventArgs e)
+        {
+            PrevImage();
+        }
+
+        private void PrevImage()
+        {
+            if (_imageEnum.MovePrevious())
+            {
+                CurrentImage();
+            }
+
+            //_images = RandomizeGenericList(_images);
+            //_imageEnum = new TwoWayEnumerator<string>(_images.GetEnumerator());
+        }
+
         private void NextImage()
         {
             if (_imageEnum.MoveNext())
             {
-                try
-                {
-
-                    Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
-
-                    bool gps = false;
-                    string filename = _imageEnum.Current;
-
-                    FileInfo fi = new System.IO.FileInfo(filename);
-                    FolderName.Content = fi.Directory.Name;
-
-                    if (_imageEnum.Current.ToUpper().EndsWith("JPG")) {
-                        ExifFile file = ExifFile.Read(filename);
-                        if (file.Properties.Keys.Contains(ExifTag.GPSLatitude) && file.Properties.Keys.Contains(ExifTag.GPSLongitude))
-                        { 
-                            GPSLatitudeLongitude lat = file.Properties[ExifTag.GPSLatitude] as GPSLatitudeLongitude;
-                            GPSLatitudeLongitude lng = file.Properties[ExifTag.GPSLongitude] as GPSLatitudeLongitude;
-
-                            GPSLatitudeRef latR = (GPSLatitudeRef)file.Properties[ExifTag.GPSLatitudeRef].Value;
-                            GPSLongitudeRef lngR = (GPSLongitudeRef)file.Properties[ExifTag.GPSLongitudeRef].Value;
-
-                            int NS = 1; if (latR == GPSLatitudeRef.South) { NS = -1 ;}
-                            int WE = 1; if (lngR == GPSLongitudeRef.West) { WE = -1; }
-                                                        
-                            if (lat != null && lng != null)
-                            {
-                                FadeIn(MainMapGrid);
-                                MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat() ,  WE * (double)lng.ToFloat());
-                                MainMap.Markers.Clear();
-                                MainMap.ReloadMap() ;
-                                
-                                gps = true;
-
-                            }
-                        }
-                    }
-
-                    if (!gps)
-                    {
-                        FadeOut(MainMapGrid);
-                    }
-                    
-                    MoveTo(aux, 0, 0);
-                    return;
-                }
-                catch (Exception)
-                {
-                    _imageEnum.MoveNext();
-                    return;
-                }
+                CurrentImage();
             }
 
-            _images = RandomizeGenericList(_images);
-            _imageEnum = _images.GetEnumerator();
+            //_images = RandomizeGenericList(_images);
+            //_imageEnum = new TwoWayEnumerator<string>(_images.GetEnumerator());
         }
+
+        private void CurrentImage()
+        {
+            try
+            {
+
+                Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
+
+                bool gps = false;
+                string filename = _imageEnum.Current;
+
+                FileInfo fi = new System.IO.FileInfo(filename);
+                FolderName.Content = fi.Directory.Name;
+
+                if (_imageEnum.Current.ToUpper().EndsWith("JPG"))
+                {
+                    ExifFile file = ExifFile.Read(filename);
+                    if (file.Properties.Keys.Contains(ExifTag.GPSLatitude) && file.Properties.Keys.Contains(ExifTag.GPSLongitude))
+                    {
+                        GPSLatitudeLongitude lat = file.Properties[ExifTag.GPSLatitude] as GPSLatitudeLongitude;
+                        GPSLatitudeLongitude lng = file.Properties[ExifTag.GPSLongitude] as GPSLatitudeLongitude;
+
+                        GPSLatitudeRef latR = (GPSLatitudeRef)file.Properties[ExifTag.GPSLatitudeRef].Value;
+                        GPSLongitudeRef lngR = (GPSLongitudeRef)file.Properties[ExifTag.GPSLongitudeRef].Value;
+
+                        int NS = 1; if (latR == GPSLatitudeRef.South) { NS = -1; }
+                        int WE = 1; if (lngR == GPSLongitudeRef.West) { WE = -1; }
+
+                        if (lat != null && lng != null)
+                        {
+                            FadeIn(MainMapGrid);
+                            MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat(), WE * (double)lng.ToFloat());
+                            MainMap.Markers.Clear();
+                            MainMap.ReloadMap();
+
+                            gps = true;
+
+                        }
+                    }
+                }
+
+                if (!gps)
+                {
+                    FadeOut(MainMapGrid);
+                }
+
+                MoveTo(aux, 0, 0);
+                return;
+            }
+            catch (Exception)
+            {
+                _imageEnum.MoveNext();
+                return;
+            }
+        }
+
 
         private Image FadeToImage(BitmapImage img)
         {
@@ -443,7 +486,7 @@ namespace PictureSlideshowScreensaver
                 if (Math.Abs(_mouseLocation.X - newPos.X) > 10 || Math.Abs(_mouseLocation.Y - newPos.Y) > 10)
                 {
 #if !DEBUG
-                    Application.Current.Shutdown();
+                //Application.Current.Shutdown();
 #endif
                 }
             }

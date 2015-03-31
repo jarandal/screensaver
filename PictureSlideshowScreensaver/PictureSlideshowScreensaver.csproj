@@ -99,6 +99,7 @@
     <Compile Include="Configuration.xaml.cs">
       <DependentUpon>Configuration.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ITwoWayEnumerator.cs" />
     <Compile Include="Screensaver.xaml.cs">
       <DependentUpon>Screensaver.xaml</DependentUpon>
       <SubType>Code</SubType>
