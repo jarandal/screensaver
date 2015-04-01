@@ -76,42 +76,14 @@ namespace PictureSlideshowScreensaver
 
             InitializeComponent();
 
-            Grid[] btnArray = new Grid[] { rotate_left, media_step_back, media_play, media_step_forward, rotate_right, standby, earth_location };
-
+            FrameworkElement[] btnArray = new FrameworkElement[] { rotate_left, media_step_back, media_play, media_step_forward, rotate_right, standby, earth_location };
+            
             _bounds = bounds;
 
             panX = bounds.Width * 0.03;
             panY = bounds.Height * 0.03;
-                       
-            img1.Width = bounds.Width + panX * 2;
-            img2.Width = bounds.Width + panX * 2;
-            img1.Height = bounds.Height + panY * 2;
-            img2.Height = bounds.Height + panY * 2;
-            
-            bkg1.Width = bounds.Width * 1.4;
-            bkg2.Width = bounds.Width * 1.4;
-            bkg1.Height = bounds.Height * 3;
-            bkg2.Height = bounds.Height * 3;
-            
-            Canvas.SetTop(bkg1, - bounds.Height * 1);
-            Canvas.SetTop(bkg2, - bounds.Height * 1);
-            Canvas.SetLeft(bkg1, -bounds.Width * 0.2);
-            Canvas.SetLeft(bkg2, -bounds.Width * 0.2);
 
-
-            Thickness margin = new Thickness();
-            margin.Left = -panX;
-            margin.Right = panX;
-            margin.Top = -panY;
-            margin.Bottom = panY;
-            
-            img1.Margin = margin;
-            img2.Margin = margin;
-
-            Canvas.SetTop(img1, 0);
-            Canvas.SetTop(img2, 0);
-            Canvas.SetLeft(img1, 0);
-            Canvas.SetLeft(img2, 0);
+            setImagesSizes();
                         
             _images = new List<string>();
             _switchImage = new DispatcherTimer();
@@ -119,7 +91,7 @@ namespace PictureSlideshowScreensaver
             _switchImage.Tick += new EventHandler(_fade_Tick);
 
             int bW = _bounds.Width / 9;
-            foreach (Grid x in btnArray)
+            foreach (FrameworkElement x in btnArray)
             {
                 x.Width = bW;
                 x.Height = bW;
@@ -136,6 +108,40 @@ namespace PictureSlideshowScreensaver
             Canvas.SetTop(standby, bounds.Height - bW );
             Canvas.SetTop(earth_location, bounds.Height - bW );
 
+        }
+
+        void setImagesSizes() {
+            img1.Width = _bounds.Width + panX * 2;
+            img2.Width = _bounds.Width + panX * 2;
+            img1.Height = _bounds.Height + panY * 2;
+            img2.Height = _bounds.Height + panY * 2;
+
+            bkg1.Width = _bounds.Width * 1.4;
+            bkg2.Width = _bounds.Width * 1.4;
+            bkg1.Height = _bounds.Height * 3;
+            bkg2.Height = _bounds.Height * 3;
+
+            Canvas.SetTop(bkg1, -_bounds.Height * 1);
+            Canvas.SetTop(bkg2, -_bounds.Height * 1);
+            Canvas.SetLeft(bkg1, -_bounds.Width * 0.2);
+            Canvas.SetLeft(bkg2, -_bounds.Width * 0.2);
+            
+            Thickness margin = new Thickness();
+            margin.Left = -panX;
+            margin.Right = panX;
+            margin.Top = -panY;
+            margin.Bottom = panY;
+
+            img1.Margin = margin;
+            img2.Margin = margin;
+
+            Canvas.SetTop(img1, 0);
+            Canvas.SetTop(img2, 0);
+            Canvas.SetLeft(img1, 0);
+            Canvas.SetLeft(img2, 0);
+
+            img1.Stretch = Stretch.Uniform;
+            img2.Stretch = Stretch.Uniform;
         }
 
         void _fade_Tick(object sender, EventArgs e)
@@ -221,6 +227,7 @@ namespace PictureSlideshowScreensaver
 
         private void bPlay_Click(object sender, RoutedEventArgs e)
         {
+            switchButtons();
             ResumeAnimation();
         }
 
@@ -277,20 +284,24 @@ namespace PictureSlideshowScreensaver
         
         private void ResumeAnimation()
         {
-            NextImage(true);
+            _fade_Tick(this, null);
             _switchImage.Start();
         }
 
+        BitmapImage bitmap1 = null;
+        
         private void CurrentImage(Boolean animate)
         {
             try
             {
-
                 Image aux;
+                string x = _imageEnum.Current;
+                bitmap1 = FromFile(x);
+
                 if (animate) 
-                    { aux =  FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)),_fadeSpeed); } 
+                    { aux =  FadeToImage(bitmap1,_fadeSpeed); } 
                 else
-                    { aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)),0); };
+                    { aux = FadeToImage(bitmap1, 0); };
 
                 bool gps = false;
                 string filename = _imageEnum.Current;
@@ -298,36 +309,40 @@ namespace PictureSlideshowScreensaver
                 FileInfo fi = new System.IO.FileInfo(filename);
                 FolderName.Content = fi.Directory.Name;
 
-                if (_imageEnum.Current.ToUpper().EndsWith("JPG"))
+                try
                 {
-                    ExifFile file = ExifFile.Read(filename);
-                    if (file.Properties.Keys.Contains(ExifTag.GPSLatitude) && file.Properties.Keys.Contains(ExifTag.GPSLongitude))
+                    if (_imageEnum.Current.ToUpper().EndsWith("JPG"))
                     {
-                        GPSLatitudeLongitude lat = file.Properties[ExifTag.GPSLatitude] as GPSLatitudeLongitude;
-                        GPSLatitudeLongitude lng = file.Properties[ExifTag.GPSLongitude] as GPSLatitudeLongitude;
-
-                        GPSLatitudeRef latR = (GPSLatitudeRef)file.Properties[ExifTag.GPSLatitudeRef].Value;
-                        GPSLongitudeRef lngR = (GPSLongitudeRef)file.Properties[ExifTag.GPSLongitudeRef].Value;
-
-                        int NS = 1; if (latR == GPSLatitudeRef.South) { NS = -1; }
-                        int WE = 1; if (lngR == GPSLongitudeRef.West) { WE = -1; }
-
-                        if (lat != null && lng != null)
+                        ExifFile file = ExifFile.Read(filename);
+                        if (file.Properties.Keys.Contains(ExifTag.GPSLatitude) && file.Properties.Keys.Contains(ExifTag.GPSLongitude))
                         {
-                            if (animate)
-                                FadeIn(MainMapGrid);
-                            else
-                                MainMapGrid.Opacity = 1;
+                            GPSLatitudeLongitude lat = file.Properties[ExifTag.GPSLatitude] as GPSLatitudeLongitude;
+                            GPSLatitudeLongitude lng = file.Properties[ExifTag.GPSLongitude] as GPSLatitudeLongitude;
 
-                            MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat(), WE * (double)lng.ToFloat());
-                            MainMap.Markers.Clear();
-                            MainMap.ReloadMap();
+                            GPSLatitudeRef latR = (GPSLatitudeRef)file.Properties[ExifTag.GPSLatitudeRef].Value;
+                            GPSLongitudeRef lngR = (GPSLongitudeRef)file.Properties[ExifTag.GPSLongitudeRef].Value;
 
-                            gps = true;
+                            int NS = 1; if (latR == GPSLatitudeRef.South) { NS = -1; }
+                            int WE = 1; if (lngR == GPSLongitudeRef.West) { WE = -1; }
 
+                            if (lat != null && lng != null)
+                            {
+                                if (animate)
+                                    FadeIn(MainMapGrid);
+                                else
+                                    MainMapGrid.Opacity = 1;
+
+                                MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat(), WE * (double)lng.ToFloat());
+                                MainMap.Markers.Clear();
+                                MainMap.ReloadMap();
+
+                                gps = true;
+
+                            }
                         }
                     }
                 }
+                catch (Exception) { }
 
                 if (!gps)
                 {
@@ -337,10 +352,7 @@ namespace PictureSlideshowScreensaver
                         MainMapGrid.Opacity = 0;
                 }
 
-                if (animate) 
-                    MoveTo(aux, 0, 0);
-                else
-                { Canvas.SetTop(aux, 0); Canvas.SetLeft(aux, 0); };
+                MoveTo(aux, 0, 0);
 
                 return;
             }
@@ -373,6 +385,8 @@ namespace PictureSlideshowScreensaver
 
                 img1.Source = img;
                 bkg1.Source = wb;
+
+                setImagesSizes();
                 
                 da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(fadeSpeed));
                 da2 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(fadeSpeed));
@@ -397,6 +411,8 @@ namespace PictureSlideshowScreensaver
 
                 img2.Source = img;
                 bkg2.Source = wb;
+
+                setImagesSizes();
 
                 da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(fadeSpeed));
                 da2 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(fadeSpeed));
@@ -627,6 +643,84 @@ namespace PictureSlideshowScreensaver
         }
 
 
+        private void bRotate_left_Click(object sender, RoutedEventArgs e)
+        {
+            StopAnimation();
+            BitmapImage img = FromFile(_imageEnum.Current);
+            WriteableBitmap wb = new WriteableBitmap(img);
+            wb = wb.RotateFree(-90, false);
+            SaveBitmap(_imageEnum.Current, wb);
+            CurrentImage(false);
+            StopAnimation();
+        }
+
+        private void bRotate_right_Click(object sender, RoutedEventArgs e)
+        {
+            StopAnimation();
+            BitmapImage img = FromFile(_imageEnum.Current);
+            WriteableBitmap wb = new WriteableBitmap(img);
+            wb = wb.RotateFree(90, false);
+            SaveBitmap(_imageEnum.Current, wb);
+            CurrentImage(false);
+            StopAnimation();
+        }
+
+        void SaveBitmap(string filename, BitmapSource image5)
+        {
+            if (filename != string.Empty)
+            {
+                using (FileStream stream5 = new FileStream(filename, FileMode.Create))
+                {
+                    JpegBitmapEncoder encoder5 = new JpegBitmapEncoder();
+                    encoder5.Frames.Add(BitmapFrame.Create(image5));
+                    encoder5.Save(stream5);
+                    stream5.Close();
+                }
+            }
+        }
+
+        public static BitmapImage FromFile(string path)
+        {
+
+            System.Drawing.Image img;
+            using (var bmpTemp = new System.Drawing.Bitmap(path))
+            {
+                img = new System.Drawing.Bitmap(bmpTemp);
+            }
+
+            BitmapImage bitmapImage = null;
+            using (MemoryStream memory = new MemoryStream())
+            {
+                img.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+            }
+            return bitmapImage;
+
+
+            //BitmapImage imageSource  = null;
+            //MemoryStream ms ;
+            //var bytes = File.ReadAllBytes(path);
+            //try
+            //{
+            //    ms = new MemoryStream(bytes);
+            //    imageSource = new BitmapImage();
+            //    imageSource.BeginInit();
+            //    imageSource.StreamSource = ms;
+            //    imageSource.EndInit();
+            //    ms.Close();
+            //}
+            //catch (Exception) { }
+            //return imageSource;
+
+            //BitmapImage imageSource = new BitmapImage(new Uri(path));
+            //return imageSource;
+
+        }
      
     }
 }

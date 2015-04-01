@@ -130,6 +130,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="img\circle.png" />
     <Resource Include="preferences-desktop-screensaver.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -167,16 +168,6 @@
       <Project>{644fe7d4-0184-400f-b2d7-99cb41360658}</Project>
       <Name>GMap.NET.WindowsPresentation</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="img\360_709_std_1080.png" />
-    <Resource Include="img\c720px-Tv_resolution_chart_0249.png" />
-    <Resource Include="img\circle.png" />
-    <Resource Include="img\eia1956-small.jpg" />
-    <Resource Include="img\PM5544_with_non-PAL_signals.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="img\anillo.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\b_icon\earth_location.png" />
