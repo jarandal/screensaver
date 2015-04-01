@@ -143,7 +143,7 @@ namespace PictureSlideshowScreensaver
             if (System.Windows.SystemParameters.PowerLineStatus == PowerLineStatus.Online) { 
                 mouse_event(MOUSEEVENTF_MOVE, 1, 1, 0, 0);
             }
-            NextImage();
+            NextImage(true);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -189,7 +189,7 @@ namespace PictureSlideshowScreensaver
                     if (_images.Count > 0)
                     {
                         _imageEnum = new TwoWayEnumerator<string>(_images.GetEnumerator());
-                        NextImage();
+                        NextImage(true);
                         _switchImage.Start();
                     }
                 }
@@ -206,43 +206,91 @@ namespace PictureSlideshowScreensaver
 
         private void bNext_Click(object sender, RoutedEventArgs e)
         {
-            NextImage();
+            StopAnimation();
+            NextImage(false);
+            StopAnimation();
         }
 
 
         private void bPrev_Click(object sender, RoutedEventArgs e)
         {
-            PrevImage();
+            StopAnimation();
+            PrevImage(false);
+            StopAnimation();
         }
 
-        private void PrevImage()
+        private void bPlay_Click(object sender, RoutedEventArgs e)
+        {
+            ResumeAnimation();
+        }
+
+        private void PrevImage(bool animate)
         {
             if (_imageEnum.MovePrevious())
             {
-                CurrentImage();
+                CurrentImage(true);
+                
             }
 
-            //_images = RandomizeGenericList(_images);
-            //_imageEnum = new TwoWayEnumerator<string>(_images.GetEnumerator());
         }
 
-        private void NextImage()
+        private void NextImage( bool animate )
         {
             if (_imageEnum.MoveNext())
             {
-                CurrentImage();
+                CurrentImage(animate);
             }
 
-            //_images = RandomizeGenericList(_images);
-            //_imageEnum = new TwoWayEnumerator<string>(_images.GetEnumerator());
         }
 
-        private void CurrentImage()
+        private void StopAnimation()
+        {
+            _switchImage.Stop();
+
+            img1.BeginAnimation(Image.OpacityProperty, null);
+            img2.BeginAnimation(Image.OpacityProperty, null);
+            
+            if (lastImageNumber == 1) {
+                img1.Opacity = 1;
+                img2.Opacity = 0;
+            }
+            else {
+                img1.Opacity = 0;
+                img2.Opacity = 1;
+            }
+
+            foreach (Image img in (new Image[] { img1, img2 }))
+            {
+                var group = new TransformGroup();
+                TranslateTransform trans = new TranslateTransform();
+                group.Children.Add(trans);
+                img.RenderTransform = group;
+                trans.BeginAnimation(TranslateTransform.XProperty, null);
+                trans.BeginAnimation(TranslateTransform.YProperty, null);
+                var scale = new ScaleTransform(1.0, 1.0);
+                group.Children.Add(scale);
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            }
+
+        }
+        
+        private void ResumeAnimation()
+        {
+            NextImage(true);
+            _switchImage.Start();
+        }
+
+        private void CurrentImage(Boolean animate)
         {
             try
             {
 
-                Image aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)));
+                Image aux;
+                if (animate) 
+                    { aux =  FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)),_fadeSpeed); } 
+                else
+                    { aux = FadeToImage(new BitmapImage(new Uri(_imageEnum.Current)),0); };
 
                 bool gps = false;
                 string filename = _imageEnum.Current;
@@ -266,7 +314,11 @@ namespace PictureSlideshowScreensaver
 
                         if (lat != null && lng != null)
                         {
-                            FadeIn(MainMapGrid);
+                            if (animate)
+                                FadeIn(MainMapGrid);
+                            else
+                                MainMapGrid.Opacity = 1;
+
                             MainMap.Position = new PointLatLng(NS * (double)lat.ToFloat(), WE * (double)lng.ToFloat());
                             MainMap.Markers.Clear();
                             MainMap.ReloadMap();
@@ -279,10 +331,17 @@ namespace PictureSlideshowScreensaver
 
                 if (!gps)
                 {
-                    FadeOut(MainMapGrid);
+                    if (animate)
+                        FadeOut(MainMapGrid);
+                    else
+                        MainMapGrid.Opacity = 0;
                 }
 
-                MoveTo(aux, 0, 0);
+                if (animate) 
+                    MoveTo(aux, 0, 0);
+                else
+                { Canvas.SetTop(aux, 0); Canvas.SetLeft(aux, 0); };
+
                 return;
             }
             catch (Exception)
@@ -292,8 +351,9 @@ namespace PictureSlideshowScreensaver
             }
         }
 
+        int lastImageNumber = 1;
 
-        private Image FadeToImage(BitmapImage img)
+        private Image FadeToImage(BitmapImage img, int fadeSpeed )
         {
             Image result = null;
             DoubleAnimation da1;
@@ -304,8 +364,8 @@ namespace PictureSlideshowScreensaver
             int h = Convert.ToInt32(img.Height / 7);
             wb = wb.Resize(w, h, WriteableBitmapExtensions.Interpolation.Bilinear);
             wb = wb.Convolute(WriteableBitmapExtensions.KernelGaussianBlur5x5);
-                        
-            if (img1.Opacity == 0)
+
+            if (lastImageNumber == 2)
             {
 
                 Canvas.SetTop(img1, 0);
@@ -314,8 +374,8 @@ namespace PictureSlideshowScreensaver
                 img1.Source = img;
                 bkg1.Source = wb;
                 
-                da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
-                da2 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
+                da1 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(fadeSpeed));
+                da2 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(fadeSpeed));
 
                 img1.BeginAnimation(Image.OpacityProperty, da1);
                 img2.BeginAnimation(Image.OpacityProperty, da2);
@@ -327,8 +387,9 @@ namespace PictureSlideshowScreensaver
                 bkg2.BeginAnimation(Image.OpacityProperty, da2);
 
                 result = img1;
+                lastImageNumber = 1;
             }
-            else if (img2.Opacity == 0)
+            else if (lastImageNumber == 1)
             {
 
                 Canvas.SetTop(img2, 0);
@@ -337,8 +398,8 @@ namespace PictureSlideshowScreensaver
                 img2.Source = img;
                 bkg2.Source = wb;
 
-                da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(_fadeSpeed));
-                da2 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(_fadeSpeed));
+                da1 = new DoubleAnimation(0, TimeSpan.FromMilliseconds(fadeSpeed));
+                da2 = new DoubleAnimation(1, TimeSpan.FromMilliseconds(fadeSpeed));
 
                 img1.BeginAnimation(Image.OpacityProperty, da1);
                 img2.BeginAnimation(Image.OpacityProperty, da2);
@@ -349,6 +410,7 @@ namespace PictureSlideshowScreensaver
                 bkg2.BeginAnimation(Image.OpacityProperty, da2);
 
                 result = img2;
+                lastImageNumber = 2;
             }
             return result;
         }

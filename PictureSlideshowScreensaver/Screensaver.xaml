@@ -38,7 +38,7 @@
                     <ImageBrush ImageSource="img\b_icon\media_step_back.png"/>
                 </Grid.OpacityMask>
             </Grid>
-            <Grid Height="100" Width="100" Canvas.Left="200" x:Name="media_play"  Background="White" >
+            <Grid Height="100" Width="100" Canvas.Left="200" x:Name="media_play"  Background="White" MouseDown="bPlay_Click" >
                 <Grid.OpacityMask>
                     <ImageBrush ImageSource="img\b_icon\media_play.png"/>
                 </Grid.OpacityMask>
