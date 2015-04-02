@@ -261,7 +261,9 @@ namespace PictureSlideshowScreensaver
 
         private void bPlay_Click(object sender, RoutedEventArgs e)
         {
+            _fade_Tick(this, null);
             ResumeAnimation();
+
         }
 
         private void PrevImage(bool animate)
@@ -317,7 +319,7 @@ namespace PictureSlideshowScreensaver
         
         private void ResumeAnimation()
         {
-            switchButtons();
+            hideButtons();
             _switchImage.Start();
         }
 
@@ -631,21 +633,26 @@ namespace PictureSlideshowScreensaver
             _mouseLocation = newPos;
         }
 
+        Boolean btnVisible = false;
+
         private void switchButtons()
         {
-            if (cnvButtons.Opacity == 1)
+            if (btnVisible)
             {
                 hideButtons();
+                ResumeAnimation();
             }
             else
             {
                 showButtons();
+                StopAnimation();
             }
         }
 
         private void lblScreen_MouseDown(object sender, MouseButtonEventArgs e)
         {
             switchButtons();
+  
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -655,12 +662,13 @@ namespace PictureSlideshowScreensaver
 
         private void showButtons()
         {
+            btnVisible = true;
             FadeIn(cnvButtons,500);
-
         }
 
         private void hideButtons()
         {
+            btnVisible = false;
             FadeOut(cnvButtons,500);
         }
 

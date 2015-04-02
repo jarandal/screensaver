@@ -26,98 +26,98 @@
         <Label HorizontalAlignment="Stretch" x:Name="lblScreen" VerticalAlignment="Stretch" Opacity="1" MouseMove="lblScreen_MouseMove" MouseDown="lblScreen_MouseDown" KeyDown="Window_KeyDown" FontSize="16" Foreground="#FFD70000" />
         <Canvas x:Name="cnvButtons" Opacity="0">
             <Grid Canvas.Left="0" x:Name="rotate_left" >
-                <Image Height="100" Width="100" Source="img\b_icon\rotate_left.png">
+                <Image  Source="img\b_icon\rotate_left.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White"  MouseDown="bRotate_left_Click" >
+                <Grid  Background="White"  MouseDown="bRotate_left_Click" >
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\rotate_left.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Left="100" x:Name="media_step_back"  >
-                <Image Height="100" Width="100" Source="img\b_icon\media_step_back.png">
+                <Image  Source="img\b_icon\media_step_back.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White" MouseDown="bPrev_Click" >
+                <Grid  Background="White" MouseDown="bPrev_Click" >
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\media_step_back.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Left="200" x:Name="media_play"  >
-                <Image Height="100" Width="100" Source="img\b_icon\media_play.png">
+                <Image  Source="img\b_icon\media_play.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White" MouseDown="bPlay_Click" >
+                <Grid  Background="White" MouseDown="bPlay_Click" >
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\media_play.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Left="300" x:Name="media_step_forward"    >
-                <Image Height="100" Width="100" Source="img\b_icon\media_step_forward.png">
+                <Image  Source="img\b_icon\media_step_forward.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White" MouseDown="bNext_Click" >
+                <Grid  Background="White" MouseDown="bNext_Click" >
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\media_step_forward.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Left="400" x:Name="rotate_right" >
-                <Image Height="100" Width="100" Source="img\b_icon\rotate_right.png">
+                <Image  Source="img\b_icon\rotate_right.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White"  MouseDown="bRotate_right_Click">
+                <Grid  Background="White"  MouseDown="bRotate_right_Click">
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\rotate_right.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Top="300" x:Name="standby" >
-                <Image Height="100" Width="100" Source="img\b_icon\standby.png">
+                <Image Source="img\b_icon\standby.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White" MouseDown="bExit_Click" >
+                <Grid Background="White" MouseDown="bExit_Click" >
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\standby.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Left="100"  Canvas.Top="293" x:Name="delete"  MouseDown="bDelete_Click" >
-                <Image Height="100" Width="100" Source="img\b_icon\delete.png">
+                <Image  Source="img\b_icon\delete.png">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White" x:Name="delete_img" >
+                <Grid  Background="White" x:Name="delete_img" >
                     <Grid.OpacityMask>
                         <ImageBrush ImageSource="img\b_icon\delete.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
             <Grid Canvas.Left="100"  Canvas.Top="293" x:Name="earth_location"  >
-                <Image Height="100" Width="100" Source="img\b_icon\earth_location.png" Stretch="Fill">
+                <Image Source="img\b_icon\earth_location.png" >
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
-                <Grid Height="100" Width="100" Background="White" >
+                <Grid Background="White" >
                     <Grid.OpacityMask>
-                        <ImageBrush ImageSource="img\b_icon\earth_location.png" Stretch="Fill"/>
+                        <ImageBrush ImageSource="img\b_icon\earth_location.png" />
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
