@@ -21,7 +21,7 @@
         </Canvas>
         <Label Foreground="#FFF5F543" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="30" HorizontalAlignment="Center"   VerticalAlignment="Bottom" Width="Auto" Height="Auto " x:Name="FolderName" >
             <Label.Effect>
-                <DropShadowEffect Color="#FFC8C8C8"/>
+                <DropShadowEffect Color="Black"/>
         </Label.Effect>-</Label>
         <Label HorizontalAlignment="Stretch" x:Name="lblScreen" VerticalAlignment="Stretch" Opacity="1" MouseMove="lblScreen_MouseMove" MouseDown="lblScreen_MouseDown" KeyDown="Window_KeyDown" FontSize="16" Foreground="#FFD70000" />
         <Canvas x:Name="cnvButtons" Opacity="0">
@@ -33,7 +33,7 @@
                 </Image>
                 <Grid Height="100" Width="100" Background="White"  MouseDown="bRotate_left_Click" >
                     <Grid.OpacityMask>
-                        <ImageBrush ImageSource="img\c_icon\rotate_left.png"/>
+                        <ImageBrush ImageSource="img\b_icon\rotate_left.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
@@ -81,7 +81,7 @@
                 </Image>
                 <Grid Height="100" Width="100" Background="White"  MouseDown="bRotate_right_Click">
                     <Grid.OpacityMask>
-                        <ImageBrush ImageSource="img\c_icon\rotate_right.png"/>
+                        <ImageBrush ImageSource="img\b_icon\rotate_right.png"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
@@ -97,15 +97,27 @@
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>
+            <Grid Canvas.Left="100"  Canvas.Top="293" x:Name="delete"  MouseDown="bDelete_Click" >
+                <Image Height="100" Width="100" Source="img\b_icon\delete.png">
+                    <Image.Effect>
+                        <BlurEffect Radius="20"/>
+                    </Image.Effect>
+                </Image>
+                <Grid Height="100" Width="100" Background="White" x:Name="delete_img" >
+                    <Grid.OpacityMask>
+                        <ImageBrush ImageSource="img\b_icon\delete.png"/>
+                    </Grid.OpacityMask>
+                </Grid>
+            </Grid>
             <Grid Canvas.Left="100"  Canvas.Top="293" x:Name="earth_location"  >
-                <Image Height="100" Width="100" Source="img\b_icon\earth_location.png">
+                <Image Height="100" Width="100" Source="img\b_icon\earth_location.png" Stretch="Fill">
                     <Image.Effect>
                         <BlurEffect Radius="20"/>
                     </Image.Effect>
                 </Image>
                 <Grid Height="100" Width="100" Background="White" >
                     <Grid.OpacityMask>
-                        <ImageBrush ImageSource="img\b_icon\earth_location.png"/>
+                        <ImageBrush ImageSource="img\b_icon\earth_location.png" Stretch="Fill"/>
                     </Grid.OpacityMask>
                 </Grid>
             </Grid>

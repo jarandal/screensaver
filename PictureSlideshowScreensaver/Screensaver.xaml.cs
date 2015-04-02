@@ -23,7 +23,6 @@ using GMap.NET.MapProviders;
 using GMap.NET.WindowsPresentation;
 
 
-
 namespace PictureSlideshowScreensaver
 {
     /// <summary>
@@ -52,6 +51,8 @@ namespace PictureSlideshowScreensaver
         private DispatcherTimer _switchImage;
         private Point _mouseLocation = new Point(0, 0);
 
+        private DispatcherTimer _deleteImage;
+
         private double panX;
         private double panY;
 
@@ -76,7 +77,6 @@ namespace PictureSlideshowScreensaver
 
             InitializeComponent();
 
-            FrameworkElement[] btnArray = new FrameworkElement[] { rotate_left, media_step_back, media_play, media_step_forward, rotate_right, standby, earth_location };
             
             _bounds = bounds;
 
@@ -90,24 +90,56 @@ namespace PictureSlideshowScreensaver
             _switchImage.Interval = TimeSpan.FromSeconds(_updateInterval);
             _switchImage.Tick += new EventHandler(_fade_Tick);
 
-            int bW = _bounds.Width / 9;
-            foreach (FrameworkElement x in btnArray)
+
+            _deleteImage = new DispatcherTimer();
+            _deleteImage.Interval = TimeSpan.FromSeconds(2);
+            _deleteImage.Tick += new EventHandler(_deleteImage_Tick);
+            
+            FrameworkElement[] topBtnArray = new FrameworkElement[] { standby, null, null, null, delete,null,null, null, earth_location };
+            FrameworkElement[] bottomBtnArray = new FrameworkElement[] { rotate_left, null, null, media_step_back, media_play, media_step_forward, null, null, rotate_right };
+
+            int bW = _bounds.Width / topBtnArray.Length;
+            
+            int i;
+
+            i = 0;
+            foreach (FrameworkElement x in topBtnArray)
             {
-                x.Width = bW;
-                x.Height = bW;
+                if (x != null)
+                {
+                    x.Width = bW;
+                    x.Height = bW;
+                    Canvas.SetLeft(x, bW * i);
+                    Canvas.SetTop(x, 0);
+                }
+                i++;
             }
 
-            Canvas.SetLeft(rotate_left, 0);
-            Canvas.SetLeft(media_step_back, bW * 3);
-            Canvas.SetLeft(media_play, bW * 4);
-            Canvas.SetLeft(media_step_forward, bW * 5);
-            Canvas.SetLeft(rotate_right, bW * 8);
+            i = 0;
+            foreach (FrameworkElement x in bottomBtnArray)
+            {
+                if (x != null)
+                {
+                    x.Width = bW;
+                    x.Height = bW;
+                    Canvas.SetLeft(x, bW * i);
+                    Canvas.SetTop(x, bounds.Height - bW);
+                }
+                i++;
+            }
 
-            Canvas.SetLeft(standby, 0);
-            Canvas.SetLeft(earth_location, bW * 8);
-            Canvas.SetTop(standby, bounds.Height - bW );
-            Canvas.SetTop(earth_location, bounds.Height - bW );
-
+            //Canvas.SetLeft(rotate_left, 0);
+            //Canvas.SetLeft(media_step_back, bW * 3);
+            //Canvas.SetLeft(media_play, bW * 4);
+            //Canvas.SetLeft(media_step_forward, bW * 5);
+            //Canvas.SetLeft(rotate_right, bW * 8);
+            
+            //Canvas.SetLeft(standby, 0);
+            //Canvas.SetLeft(delete, bW * 4);
+            //Canvas.SetLeft(earth_location, bW * 8);
+            //Canvas.SetTop(standby, bounds.Height - bW );
+            //Canvas.SetTop(delete, bounds.Height - bW);
+            //Canvas.SetTop(earth_location, bounds.Height - bW );
         }
 
         void setImagesSizes() {
@@ -151,6 +183,8 @@ namespace PictureSlideshowScreensaver
             }
             NextImage(true);
         }
+
+
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -227,7 +261,6 @@ namespace PictureSlideshowScreensaver
 
         private void bPlay_Click(object sender, RoutedEventArgs e)
         {
-            switchButtons();
             ResumeAnimation();
         }
 
@@ -284,24 +317,21 @@ namespace PictureSlideshowScreensaver
         
         private void ResumeAnimation()
         {
-            _fade_Tick(this, null);
+            switchButtons();
             _switchImage.Start();
         }
 
-        BitmapImage bitmap1 = null;
-        
         private void CurrentImage(Boolean animate)
         {
             try
             {
                 Image aux;
-                string x = _imageEnum.Current;
-                bitmap1 = FromFile(x);
+                lastBitmapImage = FromFile(_imageEnum.Current);
 
-                if (animate) 
-                    { aux =  FadeToImage(bitmap1,_fadeSpeed); } 
+                if (animate)
+                     { aux = FadeToImage(lastBitmapImage, _fadeSpeed); } 
                 else
-                    { aux = FadeToImage(bitmap1, 0); };
+                    { aux = FadeToImage(lastBitmapImage, 0); };
 
                 bool gps = false;
                 string filename = _imageEnum.Current;
@@ -555,6 +585,35 @@ namespace PictureSlideshowScreensaver
             Application.Current.Shutdown();
         }
 
+        Boolean isDeleteEnabled = false;
+        private void bDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isDeleteEnabled) { 
+                Color col = (Color)ColorConverter.ConvertFromString("Red"); 
+                delete_img.Background = new SolidColorBrush(col);
+                isDeleteEnabled = true;
+                _deleteImage.Start();
+            }
+            else
+            {
+                isDeleteEnabled = false;
+                System.IO.File.Delete(_imageEnum.Current);
+                _deleteImage_Tick(this, null);
+                _imageEnum.RemoveCurrent();
+                NextImage(false);
+                ResumeAnimation();
+            }
+        }
+
+        void _deleteImage_Tick(object sender, EventArgs e)
+        {
+            Color col = (Color)ColorConverter.ConvertFromString("White");
+            delete_img.Background = new SolidColorBrush(col);
+            isDeleteEnabled = false;
+            _deleteImage.Stop();
+            ResumeAnimation();
+        }
+                
         private void lblScreen_MouseMove(object sender, MouseEventArgs e)
         {
             Point newPos = e.GetPosition(this);
@@ -646,23 +705,25 @@ namespace PictureSlideshowScreensaver
         private void bRotate_left_Click(object sender, RoutedEventArgs e)
         {
             StopAnimation();
-            BitmapImage img = FromFile(_imageEnum.Current);
-            WriteableBitmap wb = new WriteableBitmap(img);
-            wb = wb.RotateFree(-90, false);
-            SaveBitmap(_imageEnum.Current, wb);
+            rotate(-90);
             CurrentImage(false);
-            StopAnimation();
+            ResumeAnimation();
         }
 
         private void bRotate_right_Click(object sender, RoutedEventArgs e)
         {
             StopAnimation();
-            BitmapImage img = FromFile(_imageEnum.Current);
-            WriteableBitmap wb = new WriteableBitmap(img);
-            wb = wb.RotateFree(90, false);
-            SaveBitmap(_imageEnum.Current, wb);
+            rotate(90);
             CurrentImage(false);
-            StopAnimation();
+            ResumeAnimation();
+        }
+
+        public void rotate(int degrees)
+        {
+            BitmapImage img =  lastBitmapImage;
+            WriteableBitmap wb = new WriteableBitmap(img);
+            wb = wb.RotateFree(degrees, false);
+            SaveBitmap(_imageEnum.Current, wb);
         }
 
         void SaveBitmap(string filename, BitmapSource image5)
@@ -678,6 +739,8 @@ namespace PictureSlideshowScreensaver
                 }
             }
         }
+
+        BitmapImage lastBitmapImage = null;
 
         public static BitmapImage FromFile(string path)
         {
@@ -721,6 +784,42 @@ namespace PictureSlideshowScreensaver
             //return imageSource;
 
         }
+
+        //metodo supuestamente mas rapido, pero inexacto
+        //public System.Drawing.Image RotateImage(System.Drawing.Image img, float rotationAngle)
+        //{
+        //    // When drawing the returned image to a form, modify your points by 
+        //    // (-(img.Width / 2) - 1, -(img.Height / 2) - 1) to draw for actual co-ordinates.
+
+        //    //create an empty Bitmap image 
+        //    System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)(img.Width * 2), (int)(img.Height * 2));
+
+        //    //turn the Bitmap into a Graphics object
+        //    System.Drawing.Graphics gfx = System.Drawing.Graphics.FromImage(bmp);
+
+        //    //set the point system origin to the center of our image
+        //    gfx.TranslateTransform((float)bmp.Width / 2, (float)bmp.Height / 2);
+
+        //    //now rotate the image
+        //    gfx.RotateTransform(rotationAngle);
+
+        //    //move the point system origin back to 0,0
+        //    gfx.TranslateTransform(-(float)bmp.Width / 2, -(float)bmp.Height / 2);
+
+        //    //set the InterpolationMode to HighQualityBicubic so to ensure a high
+        //    //quality image once it is transformed to the specified size
+        //    gfx.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+        //                //draw our new image onto the graphics object with its center on the center of rotation
+        //    System.Drawing.PointF p = new System.Drawing.PointF( (int)(img.Width / 2),  (int)(img.Height / 2));
+        //    gfx.DrawImage(img, p);
+
+        //    //dispose of our Graphics object
+        //    gfx.Dispose();
+
+        //    //return the image
+        //    return bmp;
+        //}
      
     }
 }

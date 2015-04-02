@@ -8,6 +8,7 @@ namespace PictureSlideshowScreensaver
     public interface ITwoWayEnumerator<T> : IEnumerator<T>
     {
         bool MovePrevious();
+        bool RemoveCurrent();
     }
 
     public class TwoWayEnumerator<T> : ITwoWayEnumerator<T>
@@ -36,6 +37,17 @@ namespace PictureSlideshowScreensaver
             }
 
             --_index;
+            return true;
+        }
+
+        public bool RemoveCurrent()
+        {
+            if (_index <= 0)
+            {
+                return false;
+            }
+
+            _buffer.RemoveAt(_index);
             return true;
         }
 

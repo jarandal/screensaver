@@ -196,16 +196,10 @@
     <Resource Include="img\w_icon\media_step_back.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\c_icon\earth_location.png" />
-    <Resource Include="img\c_icon\media_beginning.png" />
-    <Resource Include="img\c_icon\media_end.png" />
-    <Resource Include="img\c_icon\media_play.png" />
-    <Resource Include="img\c_icon\media_step_back.png" />
-    <Resource Include="img\c_icon\media_step_forward.png" />
-    <Resource Include="img\c_icon\nav_right.png" />
-    <Resource Include="img\c_icon\rotate_left.png" />
-    <Resource Include="img\c_icon\rotate_right.png" />
-    <Resource Include="img\c_icon\standby.png" />
+    <Resource Include="img\b_icon\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\w_icon\delete.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
