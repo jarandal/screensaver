@@ -69,7 +69,7 @@ namespace PictureSlideshowScreensaver
             if (key != null)
             {
                 _path = (string)key.GetValue("ImageFolder");
-//#if DEBUG 
+//#if DEBUG
 //                _path = @"D:\Prog\Personal\pictureslideshow\PictureSlideshowScreensaver\img";
 //#endif
                 _updateInterval = double.Parse((string)key.GetValue("Interval"));
@@ -679,31 +679,35 @@ namespace PictureSlideshowScreensaver
             while (queue.Count > 0)
             {
                 path = queue.Dequeue();
-                try
+                DirectoryInfo di = new DirectoryInfo(path);
+                if (!di.Name.StartsWith("."))
                 {
-                    foreach (string subDir in Directory.GetDirectories(path))
+                    try
                     {
-                        queue.Enqueue(subDir);
+                        foreach (string subDir in Directory.GetDirectories(path))
+                        {
+                            queue.Enqueue(subDir);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
-                string[] files = null;
-                try
-                {
-                    files = Directory.GetFiles(path);
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
-                if (files != null)
-                {
-                    for (int i = 0; i < files.Length; i++)
+                    catch (Exception ex)
                     {
-                        yield return files[i];
+                        Console.Error.WriteLine(ex);
+                    }
+                    string[] files = null;
+                    try
+                    {
+                        files = Directory.GetFiles(path);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine(ex);
+                    }
+                    if (files != null)
+                    {
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            yield return files[i];
+                        }
                     }
                 }
             }
